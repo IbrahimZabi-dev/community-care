@@ -8,7 +8,6 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,12 +16,71 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         #root {
             width: 100%;
             height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #f9fafb;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 28rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background: #1d4ed8;
         }
     </style>
 </head>
@@ -31,715 +89,51 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        const {
-            Send, MessageSquare, LayoutDashboard, Database, MapPin,
-            Star, Phone, Clock, Users, TrendingUp, Check, AlertCircle,
-            Search, X, LogOut
-        } = lucide;
+        const { useState } = React;
 
-        // Login Screen Component
-        const LoginScreen = ({ clientUsername, setClientUsername, handleClientLogin, setCurrentView }) => {
-            return (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#f9fafb' }}>
-                    <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '2rem', width: '100%', maxWidth: '28rem' }}>
-                        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '0.5rem' }}>Welcome to CommunityCare</h2>
-                            <p style={{ color: '#6b7280' }}>Please enter a username to get started</p>
-                        </div>
-                        <input
-                            type="text"
-                            value={clientUsername}
-                            onChange={(e) => setClientUsername(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleClientLogin()}
-                            placeholder="Enter your username"
-                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', marginBottom: '1rem', outline: 'none' }}
-                        />
-                        <button
-                            onClick={handleClientLogin}
-                            disabled={!clientUsername.trim()}
-                            style={{
-                                width: '100%',
-                                backgroundColor: clientUsername.trim() ? '#2563eb' : '#9ca3af',
-                                color: 'white',
-                                padding: '0.75rem',
-                                borderRadius: '0.5rem',
-                                border: 'none',
-                                fontWeight: '500',
-                                cursor: clientUsername.trim() ? 'pointer' : 'not-allowed',
-                                transition: 'background-color 0.2s'
-                            }}
-                        >
-                            Continue
-                        </button>
-                        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        const App = () => {
+            const [username, setUsername] = useState('');
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+            if (!isLoggedIn) {
+                return (
+                    <div className="container">
+                        <div className="card">
+                            <h2 className="title">🏥 CommunityCare Network</h2>
+                            <p className="subtitle">Please enter a username to get started</p>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && username.trim() && setIsLoggedIn(true)}
+                                placeholder="Enter your username"
+                            />
                             <button
-                                onClick={() => setCurrentView('caseworker')}
-                                style={{ fontSize: '0.875rem', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                                onClick={() => setIsLoggedIn(true)}
+                                disabled={!username.trim()}
                             >
-                                Staff Login →
+                                Continue
                             </button>
                         </div>
                     </div>
-                </div>
-            );
-        };
-
-        // Profile Form Component
-        const ProfileFormScreen = ({ profileForm, setProfileForm, handleProfileSubmit, setShowProfileForm, setClientUsername }) => {
-            return (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#f9fafb', padding: '1rem' }}>
-                    <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '2rem', width: '100%', maxWidth: '48rem' }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>Tell Us About Yourself</h2>
-                        <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>This information helps us provide better assistance and connect you with appropriate resources.</p>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Full Name <span style={{ color: '#ef4444' }}>*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={profileForm.name}
-                                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                                    placeholder="John Doe"
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Age <span style={{ color: '#ef4444' }}>*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    value={profileForm.age}
-                                    onChange={(e) => setProfileForm({ ...profileForm, age: e.target.value })}
-                                    placeholder="25"
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Sex <span style={{ color: '#ef4444' }}>*</span>
-                                </label>
-                                <select
-                                    value={profileForm.sex}
-                                    onChange={(e) => setProfileForm({ ...profileForm, sex: e.target.value })}
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Non-binary">Non-binary</option>
-                                    <option value="Prefer not to say">Prefer not to say</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Occupation
-                                </label>
-                                <input
-                                    type="text"
-                                    value={profileForm.occupation}
-                                    onChange={(e) => setProfileForm({ ...profileForm, occupation: e.target.value })}
-                                    placeholder="Teacher, Student, etc."
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Contact Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={profileForm.contactNumber}
-                                    onChange={(e) => setProfileForm({ ...profileForm, contactNumber: e.target.value })}
-                                    placeholder="(817) 555-0100"
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                />
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-                                    Address/City
-                                </label>
-                                <input
-                                    type="text"
-                                    value={profileForm.address}
-                                    onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
-                                    placeholder="Fort Worth, TX"
-                                    style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
-                                />
-                            </div>
-                        </div>
-
-                        <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem' }}>
-                            <span style={{ color: '#ef4444' }}>*</span> Required fields
-                        </p>
-
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button
-                                onClick={() => {
-                                    setShowProfileForm(false);
-                                    setClientUsername('');
-                                }}
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: '#f3f4f6',
-                                    color: '#374151',
-                                    padding: '0.75rem',
-                                    borderRadius: '0.5rem',
-                                    border: 'none',
-                                    fontWeight: '500',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleProfileSubmit}
-                                disabled={!profileForm.name || !profileForm.age || !profileForm.sex}
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: (profileForm.name && profileForm.age && profileForm.sex) ? '#2563eb' : '#9ca3af',
-                                    color: 'white',
-                                    padding: '0.75rem',
-                                    borderRadius: '0.5rem',
-                                    border: 'none',
-                                    fontWeight: '500',
-                                    cursor: (profileForm.name && profileForm.age && profileForm.sex) ? 'pointer' : 'not-allowed'
-                                }}
-                            >
-                                Start Chatting
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        // Main Application Component
-        const CommunityCareNetwork = () => {
-            const [currentView, setCurrentView] = useState('client');
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [chatMessages, setChatMessages] = useState([]);
-            const [inputMessage, setInputMessage] = useState('');
-            const [isLoading, setIsLoading] = useState(false);
-            const [filterCategory, setFilterCategory] = useState('all');
-            const [searchQuery, setSearchQuery] = useState('');
-            const [showResourceModal, setShowResourceModal] = useState(false);
-            const [selectedResource, setSelectedResource] = useState(null);
-            const [savedFavorites, setSavedFavorites] = useState([]);
-            const [activeTab, setActiveTab] = useState('chat');
-            const [resources, setResources] = useState([]);
-            const [analytics, setAnalytics] = useState(null);
-            const chatEndRef = useRef(null);
-
-            const [clientUsername, setClientUsername] = useState('');
-            const [showProfileForm, setShowProfileForm] = useState(false);
-            const [currentUserProfile, setCurrentUserProfile] = useState(null);
-            const [profileForm, setProfileForm] = useState({
-                name: '',
-                age: '',
-                sex: '',
-                occupation: '',
-                contactNumber: '',
-                address: ''
-            });
-
-            useEffect(() => {
-                const sampleResources = [
-                    {
-                        id: '1',
-                        name: 'North Side Food Bank',
-                        category: 'food',
-                        description: 'Free groceries and hot meals for families in need',
-                        address: '123 Main St, Fort Worth, TX',
-                        phone: '(817) 555-0100',
-                        hours: 'Mon-Fri 9AM-5PM',
-                        eligibility: 'Income below 150% poverty line',
-                        rating: 4.5,
-                        availability: 'Open'
-                    },
-                    {
-                        id: '2',
-                        name: 'Safe Haven Housing',
-                        category: 'housing',
-                        description: 'Emergency shelter and transitional housing assistance',
-                        address: '456 Oak Ave, Fort Worth, TX',
-                        phone: '(817) 555-0200',
-                        hours: '24/7 Hotline',
-                        eligibility: 'Homeless or at risk of homelessness',
-                        rating: 4.8,
-                        availability: 'Limited beds'
-                    },
-                    {
-                        id: '3',
-                        name: 'Community Health Clinic',
-                        category: 'healthcare',
-                        description: 'Free medical care, dental services, and mental health support',
-                        address: '789 Pine Rd, Fort Worth, TX',
-                        phone: '(817) 555-0300',
-                        hours: 'Tue-Sat 8AM-6PM',
-                        eligibility: 'Uninsured or underinsured',
-                        rating: 4.6,
-                        availability: 'Accepting new patients'
-                    },
-                    {
-                        id: '4',
-                        name: 'Job Connect Center',
-                        category: 'employment',
-                        description: 'Job training, resume help, and employment placement',
-                        address: '321 Elm St, Fort Worth, TX',
-                        phone: '(817) 555-0400',
-                        hours: 'Mon-Thu 10AM-4PM',
-                        eligibility: 'Open to all job seekers',
-                        rating: 4.3,
-                        availability: 'Workshop this Friday'
-                    },
-                    {
-                        id: '5',
-                        name: 'Youth Services Program',
-                        category: 'youth',
-                        description: 'After-school programs, tutoring, and mentorship for children',
-                        address: '654 Maple Dr, Fort Worth, TX',
-                        phone: '(817) 555-0500',
-                        hours: 'Mon-Fri 3PM-7PM',
-                        eligibility: 'Ages 5-18',
-                        rating: 4.7,
-                        availability: 'Enrolling now'
-                    },
-                    {
-                        id: '6',
-                        name: 'Crisis Hotline 24/7',
-                        category: 'crisis',
-                        description: 'Immediate support for mental health emergencies and crisis intervention',
-                        address: 'Phone service available nationwide',
-                        phone: '988',
-                        hours: '24/7',
-                        eligibility: 'Anyone in crisis',
-                        rating: 5.0,
-                        availability: 'Always available'
-                    }
-                ];
-                setResources(sampleResources);
-
-                setAnalytics({
-                    totalInquiries: 247,
-                    successfulReferrals: 189,
-                    avgResponseTime: '2.3 min',
-                    topCategories: [
-                        { name: 'Food Assistance', count: 89 },
-                        { name: 'Housing', count: 67 },
-                        { name: 'Healthcare', count: 54 },
-                        { name: 'Employment', count: 37 }
-                    ]
-                });
-            }, []);
-
-            const handleClientLogin = () => {
-                if (clientUsername.trim()) {
-                    setShowProfileForm(true);
-                }
-            };
-
-            const handleProfileSubmit = () => {
-                if (profileForm.name && profileForm.age && profileForm.sex) {
-                    const newProfile = {
-                        username: clientUsername,
-                        ...profileForm,
-                        createdAt: new Date().toISOString()
-                    };
-                    setCurrentUserProfile(newProfile);
-                    setShowProfileForm(false);
-                    setChatMessages([]);
-                }
-            };
-
-            const handleLogout = () => {
-                setCurrentUserProfile(null);
-                setClientUsername('');
-                setChatMessages([]);
-                setSavedFavorites([]);
-                setProfileForm({
-                    name: '',
-                    age: '',
-                    sex: '',
-                    occupation: '',
-                    contactNumber: '',
-                    address: ''
-                });
-            };
-
-            const handleSendMessage = async () => {
-                if (!inputMessage.trim()) return;
-
-                const userMessage = { role: 'user', content: inputMessage };
-                setChatMessages(prev => [...prev, userMessage]);
-                setInputMessage('');
-                setIsLoading(true);
-
-                const crisisKeywords = ['suicide', 'kill myself', 'end my life', 'hurt myself', 'emergency'];
-                const hasCrisisKeyword = crisisKeywords.some(keyword =>
-                    inputMessage.toLowerCase().includes(keyword)
                 );
-
-                if (hasCrisisKeyword) {
-                    const crisisResponse = {
-                        role: 'assistant',
-                        content: `🚨 I notice you may be in crisis. Please contact the Crisis Hotline immediately at 988 (available 24/7). Your safety is the top priority.\n\nI'm also here to help you find other resources. Would you like me to continue helping with that?`,
-                        resources: [resources.find(r => r.id === '6')]
-                    };
-                    setChatMessages(prev => [...prev, crisisResponse]);
-                    setIsLoading(false);
-                    return;
-                }
-
-                try {
-                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer YOUR_OPENAI_API_KEY_HERE'
-                        },
-                        body: JSON.stringify({
-                            model: 'gpt-4',
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: `You are an intake assistant for CommunityCare Network, a non-profit that helps connect people with social services.
-
-Available resources:
-${resources.map(r => `- ${r.name} (${r.category}): ${r.description}`).join('\n')}
-
-Please:
-1. Acknowledge their situation with empathy
-2. Ask 1-2 clarifying questions to better understand their needs
-3. Suggest relevant resources from the list above
-4. Format your response conversationally and helpfully
-
-Return your response as JSON in this format:
-{
-  "message": "Your empathetic response and questions",
-  "recommendedResourceIds": ["1", "2"]
-}`
-                                },
-                                {
-                                    role: 'user',
-                                    content: `User profile:
-- Name: ${currentUserProfile?.name || 'Guest'}
-- Age: ${currentUserProfile?.age || 'N/A'}
-- Occupation: ${currentUserProfile?.occupation || 'N/A'}
-
-User's request: "${inputMessage}"`
-                                }
-                            ],
-                            temperature: 0.7
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.error) {
-                        throw new Error(data.error.message || 'API Error');
-                    }
-
-                    const responseText = data.choices[0].message.content;
-
-                    let parsedResponse;
-                    try {
-                        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-                        parsedResponse = JSON.parse(jsonMatch ? jsonMatch[0] : responseText);
-                    } catch (e) {
-                        parsedResponse = { message: responseText, recommendedResourceIds: [] };
-                    }
-
-                    const recommendedResources = resources.filter(r =>
-                        parsedResponse.recommendedResourceIds?.includes(r.id)
-                    );
-
-                    const assistantMessage = {
-                        role: 'assistant',
-                        content: parsedResponse.message,
-                        resources: recommendedResources
-                    };
-
-                    setChatMessages(prev => [...prev, assistantMessage]);
-                } catch (error) {
-                    console.error('Error:', error);
-                    const errorMessage = {
-                        role: 'assistant',
-                        content: `I apologize, but I encountered an error: ${error.message}. Please try again or speak with a case worker for assistance.`
-                    };
-                    setChatMessages(prev => [...prev, errorMessage]);
-                }
-
-                setIsLoading(false);
-            };
-
-            const toggleFavorite = (resourceId) => {
-                setSavedFavorites(prev =>
-                    prev.includes(resourceId)
-                        ? prev.filter(id => id !== resourceId)
-                        : [...prev, resourceId]
-                );
-            };
-
-            const getCategoryIcon = (category) => {
-                const icons = {
-                    food: '🍽️',
-                    housing: '🏠',
-                    healthcare: '🏥',
-                    employment: '💼',
-                    youth: '👨‍👩‍👧‍👦',
-                    crisis: '🚨'
-                };
-                return icons[category] || '📋';
-            };
-
-            const filteredResources = resources.filter(r => {
-                const matchesCategory = filterCategory === 'all' || r.category === filterCategory;
-                const matchesSearch = r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    r.description.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            });
-
-            if (currentView === 'client') {
-                if (!currentUserProfile && !showProfileForm) {
-                    return <LoginScreen
-                        clientUsername={clientUsername}
-                        setClientUsername={setClientUsername}
-                        handleClientLogin={handleClientLogin}
-                        setCurrentView={setCurrentView}
-                    />;
-                }
-
-                if (!currentUserProfile && showProfileForm) {
-                    return <ProfileFormScreen
-                        profileForm={profileForm}
-                        setProfileForm={setProfileForm}
-                        handleProfileSubmit={handleProfileSubmit}
-                        setShowProfileForm={setShowProfileForm}
-                        setClientUsername={setClientUsername}
-                    />;
-                }
-
-                if (currentUserProfile) {
-                    return (
-                        <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ backgroundColor: '#2563eb', color: 'white', padding: '1rem' }}>
-                                <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <div>
-                                            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                CommunityCare Network
-                                            </h1>
-                                            <p style={{ fontSize: '0.875rem', color: '#bfdbfe', marginTop: '0.25rem' }}>Welcome back, {currentUserProfile?.name}!</p>
-                                        </div>
-                                        <button
-                                            onClick={handleLogout}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.5rem',
-                                                padding: '0.5rem 1rem',
-                                                backgroundColor: '#1e40af',
-                                                border: 'none',
-                                                borderRadius: '0.5rem',
-                                                color: 'white',
-                                                fontSize: '0.875rem',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            Logout
-                                        </button>
-                                    </div>
-
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' }}>
-                                        <div style={{ backgroundColor: 'rgba(30, 58, 138, 0.5)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                                            <p style={{ fontSize: '0.75rem', color: '#bfdbfe', marginBottom: '0.25rem' }}>Total Inquiries</p>
-                                            <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{analytics?.totalInquiries || 0}</p>
-                                        </div>
-                                        <div style={{ backgroundColor: 'rgba(30, 58, 138, 0.5)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                                            <p style={{ fontSize: '0.75rem', color: '#bfdbfe', marginBottom: '0.25rem' }}>Successful Referrals</p>
-                                            <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{analytics?.successfulReferrals || 0}</p>
-                                        </div>
-                                        <div style={{ backgroundColor: 'rgba(30, 58, 138, 0.5)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                                            <p style={{ fontSize: '0.75rem', color: '#bfdbfe', marginBottom: '0.25rem' }}>Avg Response</p>
-                                            <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{analytics?.avgResponseTime || 'N/A'}</p>
-                                        </div>
-                                        <div style={{ backgroundColor: 'rgba(30, 58, 138, 0.5)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-                                            <p style={{ fontSize: '0.75rem', color: '#bfdbfe', marginBottom: '0.25rem' }}>Success Rate</p>
-                                            <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                                                {analytics ? Math.round((analytics.successfulReferrals / analytics.totalInquiries) * 100) : 0}%
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9fafb' }}>
-                                <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
-                                    {chatMessages.length === 0 && (
-                                        <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '1.5rem', marginBottom: '1rem' }}>
-                                            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem' }}>Hi {currentUserProfile?.name}! How can we help you today?</h2>
-                                            <p style={{ color: '#6b7280', marginBottom: '1rem' }}>Tell us what you need in your own words. We'll help you find the right resources.</p>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                                                {[
-                                                    { text: 'I need food assistance', icon: '🍽️' },
-                                                    { text: 'I need help finding housing', icon: '🏠' },
-                                                    { text: 'I need healthcare services', icon: '🏥' },
-                                                    { text: 'I need help finding a job', icon: '💼' }
-                                                ].map((suggestion, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => setInputMessage(suggestion.text)}
-                                                        style={{
-                                                            padding: '0.75rem',
-                                                            backgroundColor: '#eff6ff',
-                                                            border: 'none',
-                                                            borderRadius: '0.5rem',
-                                                            textAlign: 'left',
-                                                            cursor: 'pointer',
-                                                            transition: 'background-color 0.2s'
-                                                        }}
-                                                    >
-                                                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{suggestion.icon}</span>
-                                                        <span style={{ fontSize: '0.875rem', color: '#374151' }}>{suggestion.text}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {chatMessages.map((msg, idx) => (
-                                        <div key={idx} style={{ marginBottom: '1rem', display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                                            <div style={{
-                                                maxWidth: '80%',
-                                                backgroundColor: msg.role === 'user' ? '#2563eb' : 'white',
-                                                color: msg.role === 'user' ? 'white' : '#1f2937',
-                                                borderRadius: '0.5rem',
-                                                padding: '1rem',
-                                                boxShadow: msg.role === 'assistant' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-                                            }}>
-                                                <p>{msg.content}</p>
-
-                                                {msg.resources && msg.resources.length > 0 && (
-                                                    <div style={{ marginTop: '1rem' }}>
-                                                        <p style={{ fontWeight: '600', fontSize: '0.875rem', color: '#374151', marginBottom: '0.75rem' }}>Recommended Resources:</p>
-                                                        {msg.resources.map(resource => (
-                                                            <div key={resource.id} style={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', padding: '0.75rem', border: '1px solid #e5e7eb', marginBottom: '0.75rem' }}>
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                                        <span style={{ fontSize: '1.5rem' }}>{getCategoryIcon(resource.category)}</span>
-                                                                        <h3 style={{ fontWeight: '600', color: '#111827' }}>{resource.name}</h3>
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={() => toggleFavorite(resource.id)}
-                                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#eab308' }}
-                                                                    >
-                                                                        {savedFavorites.includes(resource.id) ? '⭐' : '☆'}
-                                                                    </button>
-                                                                </div>
-                                                                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>{resource.description}</p>
-                                                                <div style={{ fontSize: '0.875rem' }}>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151', marginBottom: '0.25rem' }}>
-                                                                        <span>📍</span>
-                                                                        <span>{resource.address}</span>
-                                                                    </div>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151', marginBottom: '0.25rem' }}>
-                                                                        <span>📞</span>
-                                                                        <span>{resource.phone}</span>
-                                                                    </div>
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
-                                                                        <span>🕒</span>
-                                                                        <span>{resource.hours}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                                    <span style={{ fontSize: '0.75rem', backgroundColor: '#d1fae5', color: '#065f46', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>
-                                                                        {resource.availability}
-                                                                    </span>
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setSelectedResource(resource);
-                                                                            setShowResourceModal(true);
-                                                                        }}
-                                                                        style={{ fontSize: '0.75rem', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-                                                                    >
-                                                                        View Details →
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {isLoading && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6b7280', marginBottom: '1rem' }}>
-                                            <div style={{ width: '1rem', height: '1rem', border: '2px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                                            <span>Finding resources for you...</span>
-                                        </div>
-                                    )}
-                                    <div ref={chatEndRef} />
-                                </div>
-                            </div>
-
-                            <div style={{ backgroundColor: 'white', borderTop: '1px solid #e5e7eb', padding: '1rem' }}>
-                                <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <input
-                                            type="text"
-                                            value={inputMessage}
-                                            onChange={(e) => setInputMessage(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                                            placeholder="Describe what you need help with..."
-                                            style={{
-                                                flex: 1,
-                                                padding: '0.75rem',
-                                                border: '1px solid #d1d5db',
-                                                borderRadius: '0.5rem',
-                                                outline: 'none'
-                                            }}
-                                        />
-                                        <button
-                                            onClick={handleSendMessage}
-                                            disabled={isLoading}
-                                            style={{
-                                                backgroundColor: isLoading ? '#9ca3af' : '#2563eb',
-                                                color: 'white',
-                                                padding: '0 1.5rem',
-                                                borderRadius: '0.5rem',
-                                                border: 'none',
-                                                cursor: isLoading ? 'not-allowed' : 'pointer',
-                                                transition: 'background-color 0.2s'
-                                            }}
-                                        >
-                                            Send
-                                        </button>
-                                    </div>
-                                    <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem', textAlign: 'center' }}>
-                                        🚨 In crisis? Call 988 for immediate support
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
             }
 
-            return <div>Loading...</div>;
+            return (
+                <div className="container">
+                    <div className="card">
+                        <h2 className="title">✅ Welcome, {username}!</h2>
+                        <p className="subtitle">Your CommunityCare Network app is running successfully on AWS App Runner!</p>
+                        <button onClick={() => setIsLoggedIn(false)}>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<CommunityCareNetwork />);
+        root.render(<App />);
     </script>
 </body>
 
