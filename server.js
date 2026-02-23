@@ -8,25 +8,21 @@ const PORT = process.env.PORT || 8080;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
-// Health check endpoint - MUST respond quickly
+// ✅ Serve Vite production build
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Health check endpoint
 app.get('/health', (req, res) => {
-    console.log('Health check requested');
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString()
     });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Catch all other routes
+// ✅ Root should return dist/index.html
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // Error handling
@@ -35,9 +31,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server - MUST listen on 0.0.0.0
+// Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`✅ Health check available at /health`);
 });
